@@ -34,8 +34,9 @@ class SimpleSeleniumScript:
 
 
 if __name__ == "__main__":
+    url = 'https://example_url.com'
     script = SimpleSeleniumScript()
-    script.open_link(link='https://admin.opap.bespot.io/admin')
+    script.open_link(link=url)
     script.wait_until_element_present_by_xpath(xpath_wait_id='//*[@id="id_username"]')
     script.fill_form(info_to_fill={'//*[@id="id_username"]': 'Username', '//*[@id="id_password"]': 'Pass'})
     script.click_button_by_xpath(xpath_button_id='//*[@id="login-form"]/div[4]/input')
