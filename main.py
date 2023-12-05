@@ -2,12 +2,27 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+import logging
 
 
-class SimpleSeleniumScript:
-    def __init__(self):
-        self.driver = webdriver.Chrome()
-        self.wait = WebDriverWait(self.driver, 10)
+class SeleniumScript:
+    def __init__(self, browser_type="chrome"):
+        try:
+            if browser_type.lower() == "chrome":
+                self.driver = webdriver.Chrome()
+            # Add other browser options as needed
+            else:
+                raise ValueError("Invalid browser type specified.")
+            self.wait = WebDriverWait(self.driver, 10)
+        except Exception as e:
+            logging.error(f"Error initializing WebDriver: {str(e)}")
+            raise
+
+    def wait_for_element(self, by, value):
+        try:
+            self.wait.until(EC.presence_of_element_located((by, value)))
+        except Exception as e:
+            logging.warning(f"Element not found: {str(e)}")
 
     def open_link(self, link):
         # Open the link
@@ -35,11 +50,15 @@ class SimpleSeleniumScript:
 
 if __name__ == "__main__":
     url = 'https://example_url.com'
-    script = SimpleSeleniumScript()
-    script.open_link(link=url)
-    script.wait_until_element_present_by_xpath(xpath_wait_id='//*[@id="id_username"]')
-    script.fill_form(info_to_fill={'//*[@id="id_username"]': 'Username', '//*[@id="id_password"]': 'Pass'})
-    script.click_button_by_xpath(xpath_button_id='//*[@id="login-form"]/div[4]/input')
-    input("Press Enter to close the browser...")
-    # Close the browser
-    script.close_browser()
+    logging.basicConfig(level=logging.INFO)  # Set logging level
+    try:
+        script = SeleniumScript()
+        script.open_link(url)
+        script.wait_for_element(By.XPATH, '//*[@id="id_username"]')
+        script.fill_form({'//*[@id="id_username"]': 'Username', '//*[@id="id_password"]': 'Pass'})
+        script.click_button_by_xpath('//*[@id="login-form"]/div[4]/input')
+        input("Press Enter to close the browser...")
+    except Exception as exception:
+        logging.error(f"Test execution failed: {str(exception)}")
+    finally:
+        script.close_browser()
