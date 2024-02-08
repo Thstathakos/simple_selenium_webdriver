@@ -18,8 +18,9 @@ class SeleniumScript:
             logging.error(f"Error initializing WebDriver: {str(e)}")
             raise
 
-    def wait_for_element(self, by, value):
+    def wait_for_element(self, locator_method, value):
         try:
+            by = self._get_by_method(locator_method)
             self.wait.until(EC.presence_of_element_located((by, value)))
         except Exception as e:
             logging.warning(f"Element not found: {str(e)}")
@@ -29,19 +30,31 @@ class SeleniumScript:
         self.driver.get(link)
 
     def fill_form(self, info_to_fill):
-        # Find the input boxes by their IDs and fill in the information
-        for xpath_id, value in info_to_fill.items():
-            input_field = self.driver.find_element(By.XPATH, xpath_id)
+        for locator_method, value in info_to_fill.items():
+            method, xpath = locator_method.split(':', 1)  # Split the locator method and XPath
+            by = self._get_by_method(method)
+            input_field = self.driver.find_element(by, xpath)
             input_field.send_keys(value)
 
-    def click_button_by_xpath(self, xpath_button_id):
-        # Example: Click the "Confirm" button with a specific ID
-        confirm_button = self.driver.find_element(By.XPATH, xpath_button_id)
-        confirm_button.click()
+    def click_button(self, locator_method, value):
+        by = self._get_by_method(locator_method)
+        button_element = self.driver.find_element(by, value)
+        button_element.click()
 
-    def wait_until_element_present_by_xpath(self, xpath_wait_id):
-        # Wait until an element with the specified CSS selector is present
-        self.wait.until(EC.presence_of_element_located((By.XPATH, xpath_wait_id)))
+    def wait_until_element_present(self, locator_method, value):
+        by = self._get_by_method(locator_method)
+        self.wait.until(EC.presence_of_element_located((by, value)))
+
+    def _get_by_method(self, locator_method):
+        locator_method = locator_method.lower()
+        if locator_method == "xpath":
+            return By.XPATH
+        elif locator_method == "id":
+            return By.ID
+        elif locator_method == "name":
+            return By.NAME
+        else:
+            raise ValueError("Invalid locator method specified.")
 
     def close_browser(self):
         # Close the browser window
@@ -49,15 +62,16 @@ class SeleniumScript:
 
 
 if __name__ == "__main__":
-    url = 'https://example_url.com'
+    url = 'https://admin.opap.bespot.io/admin'
     logging.basicConfig(level=logging.INFO)  # Set logging level
     try:
         script = SeleniumScript()
         script.open_link(url)
-        script.wait_for_element(By.XPATH, '//*[@id="id_username"]')
-        script.fill_form({'//*[@id="id_username"]': 'Username', '//*[@id="id_password"]': 'Pass'})
-        script.click_button_by_xpath('//*[@id="login-form"]/div[4]/input')
+        script.wait_for_element("xpath", '//*[@id="id_username"]')
+        script.fill_form({'id:id_username': 'Username', 'name:password': 'Pass'})
+        script.click_button("xpath", '//*[@id="login-form"]/div[4]/input')
         input("Press Enter to close the browser...")
+        script.close_browser()
     except Exception as exception:
         logging.error(f"Test execution failed: {str(exception)}")
     finally:
