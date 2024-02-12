@@ -62,7 +62,7 @@ class SeleniumScript:
 
 
 if __name__ == "__main__":
-    url = 'https://admin.opap.bespot.io/admin'
+    url = 'https://www.example.com'
     logging.basicConfig(level=logging.INFO)  # Set logging level
     try:
         script = SeleniumScript()
