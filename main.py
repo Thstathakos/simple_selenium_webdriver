@@ -1,9 +1,9 @@
-from classes import SeleniumScript
+from selenium_script import SeleniumScript
 import logging
 
 
 # This is an example of the script's functions you can change them according to your needs.
-# You can use xpath,id,name as a locator see the file classes.py for more details
+# You can use xpath,id,name as a locator see the file selenium_script.py for more details
 
 
 if __name__ == "__main__":
